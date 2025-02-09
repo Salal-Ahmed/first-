@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TalkGenie</title>
+  <style>
+    /* Default Dark Mode CSS Variables */
+    :root {
+      --background-color: #121212;
+      --text-color: #fff;
+      --container-color: #1e1e1e;
+      --header-color: #74C0FC;
+      --footer-color: #2a2a2a;
+      --button-bg: #333;
+      --icon-color: #aaa;
+      --hover-color: #043eeb;
+      --placeholder-color: #aaa;
+    }
+
+    /* Light Mode CSS Variables */
+    [data-theme="light"] {
+      --background-color: #f8f9fa;
+      --text-color: #000;
+      --container-color: #ffffff;
+      --header-color: #4A90E2;
+      --footer-color: #f1f1f1;
+      --button-bg: #e0e0e0;
+      --icon-color: #555;
+      --hover-color: #4A90E2;
+      --placeholder-color: #888;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: var(--background-color);
+      color: var(--text-color);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    .chat-container {
+      width: 700px;
+      height: 90vh;
+      background-color: var(--container-color);
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transition: background-color 0.3s;
+    }
+
+    .chat-header {
+      background-color: var(--header-color);
+      padding: 15px;
+      text-align: center;
+      font-size: 18px;
+      font-weight: bold;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--text-color);
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    .theme-toggle-btn {
+      cursor: pointer;
+      font-size: 18px;
+      background: none;
+      border: none;
+      color: var(--text-color);
+      transition: transform 0.2s ease-in-out, color 0.3s;
+    }
+
+    .theme-toggle-btn:hover {
+      transform: scale(1.1);
+      color: var(--hover-color);
+    }
+
+    .chat-main {
+      flex: 1;
+      padding: 15px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .message {
+      background-color: var(--button-bg);
+      color: var(--text-color);
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 5px;
+      max-width: 80%;
+      align-self: flex-start;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    .user-message {
+      background-color: var(--hover-color);
+      align-self: flex-end;
+      transition: background-color 0.3s;
+    }
+
+    .chat-footer {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 15px;
+      background-color: var(--footer-color);
+      border-top: 1px solid #333;
+      transition: background-color 0.3s;
+    }
+
+    #chat-input {
+      flex: 1;
+      padding: 12px 20px;
+      border-radius: 25px;
+      border: none;
+      outline: none;
+      background-color: var(--container-color);
+      color: var(--text-color);
+      font-size: 16px;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    #chat-input::placeholder {
+      color: var(--placeholder-color);
+      transition: color 0.3s;
+    }
+
+    .icon-btn {
+      background: var(--button-bg);
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      font-size: 18px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: var(--icon-color);
+      cursor: pointer;
+      transition: background-color 0.3s, color 0.3s, transform 0.2s;
+    }
+
+    .icon-btn:hover {
+      background-color: var(--hover-color);
+      color: #fff;
+      transform: scale(1.1);
+    }
+
+    #send-btn {
+      width: 50px;
+      height: 50px;
+      background-color: var(--button-bg);
+      color: var(--text-color);
+      border: none;
+      border-radius: 50%;
+      font-size: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      transition: background-color 0.3s, box-shadow 0.3s, transform 0.2s;
+    }
+
+    #send-btn:hover {
+      background-color: var(--hover-color);
+      box-shadow: 0px 0px 10px var(--hover-color);
+      transform: scale(1.1);
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-container">
+    <div class="chat-header">
+      TalkGenie
+      <button class="theme-toggle-btn" id="theme-toggle" title="Toggle Light/Dark Mode">
+        <img src="day-mode.png" width="25px" height="25px">
+      </button>
+    </div>
+    <div class="chat-main" id="chat-main">
+      <!-- Chat messages will appear here -->
+    </div>
+    <div class="chat-footer">
+      <!-- <input type="file" id="file-input" style="display: none;" />
+      <button class="icon-btn" id="attachment-btn" title="Attach File">
+        <img src="attachement.svg" width="20px" height="20px">
+      </button> -->
+      <input type="text" id="chat-input" placeholder="Type your message here..." />
+      <button class="icon-btn" id="mic-btn" title="Speak">
+        <img src="microphone.svg" class="mic" width="20px" height="20px">
+      </button>
+      <button id="send-btn" title="Send">
+        <img src="sender.svg" width="20px" height="20px">
+      </button>
+      <button class="icon-btn" id="assistant">
+        <img src="soundbar.svg" width="20px" height="20px"/>
+      </button>
+    </div>
+  </div>
+  <script src="script.js"></script>
+  <!-- <script>
+    const themeToggle = document.getElementById('theme-toggle');
+    const root = document.documentElement;
+
+    // Toggle between light and dark themes
+    themeToggle.addEventListener('click', () => {
+      const currentTheme = root.getAttribute('data-theme');
+      if (currentTheme === 'light') {
+        root.setAttribute('data-theme', 'dark');
+        themeToggle.innerHTML = `<img src="day-mode.png" width="25px" height="25px" />`;
+      } else {
+        root.setAttribute('data-theme', 'light');
+        themeToggle.innerHTML = `<img src="night-mode.png" width="25px" height="25px" />`;
+      }
+    });
+
+    const chatInput = document.getElementById('chat-input');
+    const chatMain = document.getElementById('chat-main');
+    const sendBtn = document.getElementById('send-btn');
+    const micBtn = document.getElementById('mic-btn');
+    const fileInput = document.getElementById('file-input');
+    const attachmentBtn = document.getElementById('attachment-btn');
+
+    // Handle input and Enter key
+    chatInput.addEventListener('keypress', (event) => {
+      if (event.key === 'Enter') {
+        processMessage();
+      }
+    });
+
+    // Handle Send button
+    sendBtn.addEventListener('click', () => {
+      processMessage();
+    });
+
+    // Microphone button functionality using Web Speech API
+    micBtn.addEventListener('click', () => {
+      const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+      recognition.lang = 'en-US';
+
+      recognition.onstart = () => {
+        micBtn.title = 'Listening...';
+      };
+
+      recognition.onresult = (event) => {
+        const voiceInput = event.results[0][0].transcript;
+        displayMessage(voiceInput, 'user-message');
+        sendMessageToBackend(voiceInput);
+        micBtn.title = 'Speak';
+      };
+
+      recognition.onerror = () => {
+        alert('Error capturing voice. Please try again.');
+        micBtn.title = 'Speak';
+      };
+
+      recognition.start();
+    });
+
+    // Handle attachment functionality
+    attachmentBtn.addEventListener('click', () => {
+      fileInput.click();
+    });
+
+    fileInput.addEventListener('change', () => {
+      const file = fileInput.files[0];
+      if (file) {
+        displayMessage(`File attached: ${file.name}`, 'user-message');
+      }
+    });
+
+    function processMessage() {
+      const message = chatInput.value.trim();
+      if (message) {
+        displayMessage(message, 'user-message');
+        sendMessageToBackend(message);
+        chatInput.value = '';
+      }
+    }
+
+    function displayMessage(message, className) {
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `message ${className}`;
+      messageDiv.textContent = message;
+      chatMain.appendChild(messageDiv);
+      chatMain.scrollTop = chatMain.scrollHeight; // Scroll to the latest message
+    }
+
+    // Send message to backend and handle response
+    async function sendMessageToBackend(message) {
+    try {
+        const response = await fetch('http://127.0.0.1:5000/manual_input', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ input: message }),
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            displayMessage(data.response, 'bot-message'); // Use backend's response
+        } else {
+            displayMessage('Error: Could not get a response from the server.', 'bot-message');
+        }
+    } catch (error) {
+        console.error('Error communicating with backend:', error);
+        displayMessage('Error: Unable to connect to the server.', 'bot-message');
+    }
+}
+
+  </script> -->
+</body>
+
+<!-- <body>
+  <div class="chat-container">
+    <div class="chat-header">
+      GHAZI'S AI
+      <button class="theme-toggle-btn" id="theme-toggle" title="Toggle Light/Dark Mode"><img src="day-mode.png" width="25px" height="25px"></button>
+    </div>
+    <div class="chat-main" id="chat-main">
+
+    </div>
+    <div class="chat-footer">
+      <input type="file" id="file-input" style="display: none;" />
+      <button class="icon-btn" id="attachment-btn" title="Attach File"><img src="attachement.svg" width="20px" height="20px"></button>
+      <input type="text" id="chat-input" placeholder="Type your message here..." />
+      <button class="icon-btn" id="mic-btn" title="Speak"><img src="microphone.svg" class="mic" width="20px" height="20px"></button>
+      <button id="send-btn" title="Send"><img src="sender.svg" width="20px" height="20px"></button>
+    </div>
+  </div>
+  <script> 
+    
+//     const themeToggle = document.getElementById('theme-toggle');
+//     const root = document.documentElement;
+
+//     // Toggle between light and dark themes
+//     themeToggle.addEventListener('click', () => {
+//       const currentTheme = root.getAttribute('data-theme');
+//       if (currentTheme === 'light') {
+//         root.setAttribute('data-theme', 'dark');
+//         themeToggle.textContent = '🌞'; // Icon for dark mode
+//       } else {
+//         root.setAttribute('data-theme', 'light');
+//         themeToggle.textContent = '🌙'; // Icon for light mode
+//       }
+//     });
+
+//     // Replace theme toggle functionality to use images
+//   themeToggle.addEventListener('click', () => {
+//   const currentTheme = root.getAttribute('data-theme');
+//   if (currentTheme === 'light') {
+//     root.setAttribute('data-theme', 'dark');
+//     themeToggle.innerHTML = `<img src="day-mode.png" width="25px" height="25px" />`; // Replace 'sun-icon.png' with your sun image path
+//   } else {
+//     root.setAttribute('data-theme', 'light');
+//     themeToggle.innerHTML = `<img src="night-mode.png"  width="25px" height="25px" />`; // Replace 'moon-icon.png' with your moon image path
+//   }
+// });
+
+
+//     const chatInput = document.getElementById('chat-input');
+//     const chatMain = document.getElementById('chat-main');
+//     const sendBtn = document.getElementById('send-btn');
+//     const micBtn = document.getElementById('mic-btn');
+//     const fileInput = document.getElementById('file-input');
+//     const attachmentBtn = document.getElementById('attachment-btn');
+
+//     // Handle input and Enter key
+//     chatInput.addEventListener('keypress', (event) => {
+//       if (event.key === 'Enter') {
+//         processMessage();
+//       }
+//     });
+
+//     // Handle Send button
+//     sendBtn.addEventListener('click', () => {
+//       processMessage();
+//     });
+
+//     // Microphone button functionality using Web Speech API
+//     micBtn.addEventListener('click', () => {
+//       const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+//       recognition.lang = 'en-US';
+
+//       recognition.onstart = () => {
+//         micBtn.title = 'Listening...';
+//       };
+
+//       recognition.onresult = (event) => {
+//         const voiceInput = event.results[0][0].transcript;
+//         displayMessage(voiceInput, 'user-message');
+//         micBtn.title = 'Speak';
+//       };
+
+//       recognition.onerror = () => {
+//         alert('Error capturing voice. Please try again.');
+//         micBtn.title = 'Speak';
+//       };
+
+//       recognition.start();
+//     });
+
+//     // Handle attachment functionality
+//     attachmentBtn.addEventListener('click', () => {
+//       fileInput.click();
+//     });
+
+//     fileInput.addEventListener('change', () => {
+//       const file = fileInput.files[0];
+//       if (file) {
+//         displayMessage(`File attached: ${file.name}`, 'user-message');
+//       }
+//     });
+
+//     function processMessage() {
+//       const message = chatInput.value.trim();
+//       if (message) {
+//         displayMessage(message, 'user-message');
+//         chatInput.value = '';
+//       }
+//     }
+
+//     function displayMessage(message, className) {
+//       const messageDiv = document.createElement('div');
+//       messageDiv.className = `message ${className}`;
+//       messageDiv.textContent = message;
+//       chatMain.appendChild(messageDiv);
+//       chatMain.scrollTop = chatMain.scrollHeight; // Scroll to the latest message
+//     }
+  </script>
+</body> -->
+</html>
